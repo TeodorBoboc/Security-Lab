@@ -3,59 +3,68 @@
 ## Descriere
     Acesta este primul meu proiect web.
     
-    Scopul proiectului este de a invata fluxul real al unei aplicatii , de la frontend
-    pana la backend si securitate
-    Proiectul se concentreaza pe structura repetitiva: Create->Break->Fix
+    Scopul proiectului este de a învăța fluxul real al unei aplicații, de la frontend
+    până la backend și securitate.
+    Proiectul se concentrează pe structura repetitivă: Create -> Break -> Fix.
 
     Am folosit pas cu pas:
-    -Frontend: HTML,CSS,Jinja2,Bootstrap.
-    -Backend: Python,Flask,Flask-wtf.
-    -(urmeaza) Database & securitate
- 
- ---
+    - Frontend: HTML, CSS, Jinja2, Bootstrap.
+    - Backend: Python, Flask, Flask-WTF.
+    - (Urmează) Database & Securitate.
+
+---
 
 ## Scopul Proiectului
-    -Sa invat Flask si structura unei aplicatii web.
-    -Intelegerea metodelor HTTP
-    -Implementarea unui sistem de autentificare (login / register).
-    -Creearea si manipularea unei baze de date
-    -Identificarea vulnerabilitatilor unui site.
-    -Securizarea unui site.
-    -Invatare Linux
----
-
-## Functionalitati Implementate
-    -Pagina Home cu postari (dummy).
-    -Pagina About.
-    -Sistem de Intregistrare/Login.
-    -Afisare username in navbar (dummy). 
-    -Mesaje flash.
-    -Template layout comun.
+    - Să învăț Flask și structura unei aplicații web.
+    - Înțelegerea metodelor HTTP.
+    - Implementarea unui sistem de autentificare (login / register).
+    - Crearea și manipularea unei baze de date.
+    - Identificarea vulnerabilităților unui site.
+    - Securizarea unui site.
+    - Învățare Linux.
 
 ---
 
-## In lucru
-    -Inregistrare baza de date (Flask-SQLalchemy).
-    -Parole hash.
-    -Flask-login.
-    -Creare postari reale.
-    -Testare vulnerabilitati.
-    -Securizare site.
+## Funcționalități Implementate
+    - Pagina Home cu postări (dummy).
+    - Pagina About.
+    - Sistem de Înregistrare/Login.
+    - Afișare username în navbar (dummy). 
+    - Mesaje flash.
+    - Template layout comun.
+
+---
+
+## În lucru
+    - Înregistrare bază de date (Flask-SQLAlchemy).
+    - Parole hash.
+    - Flask-login.
+    - Creare postări reale.
+    - Testare vulnerabilități.
+    - Securizare site.
 
 ---
 
 ## BUGS
     1. Problema Importului Circular (Circular Dependency)
-        -In etapa de separare logica a fiserelor, m-am lovit de o problema in Python
-            Am incercat sa mut clasele User si Post in models.py pentru o organizare mai buna.
-            -App.py importa user din models.py
-            -models.py importa db din App.py
-        -Am primit eroarea:**ImportError: cannot import name 'db' from 'App'**.
-        -Cand rulam App.py fisierul primea numele __main__.Astfle, cand models.py cauta from App import db, nu gasea fisierul App deoarece acesta rula deja, provocand eroarea.
-        -In cuvinte:
-            -Cand rulam App.py acesta devine __main__, iar in models.py apelam from App import db, dar App acum este __main__, deci nu stie unde sa se uite.
-        -*SOLUTIA*
-            -Folosim un Package Structure!
-            -Am creeat un folder principal (ex:App_pk) si am adaugat in el fisierul __init__.py (Fișierul __init__.py este un fișier special în Python folosit pentru a marca un director ca pachet Python și pentru a rula cod de inițializare atunci când acel pachet este importat.) acesta ii spune lui Python ca folderul este un pachet.
-            -Am mutat initializarea obiectelor App si db in fisierul __init__.py.
-            -
+        - În etapa de separare logică a fișierelor, m-am lovit de o problemă în Python.
+            Am încercat să mut clasele User și Post în models.py pentru o organizare mai bună.
+            - App.py importa user din models.py.
+            - models.py importa db din App.py.
+        - Am primit eroarea: **ImportError: cannot import name 'db' from 'App'**.
+        - Când rulam App.py, fișierul primea numele __main__. Astfel, când models.py căuta from App import db, nu găsea fișierul App deoarece acesta rula deja, provocând eroarea.
+        - În cuvinte:
+            - Când rulăm App.py, acesta devine __main__, iar în models.py apelăm from App import db, dar App acum este __main__, deci nu știe unde să se uite.
+
+        - *SOLUȚIA*
+            - Folosim un Package Structure!
+            
+            - Am creat un folder principal (ex: App_pk) și am adăugat în el fișierul __init__.py (Fișierul __init__.py este un fișier special în Python folosit pentru a marca un director ca pachet Python și pentru a rula cod de inițializare atunci când acel pachet este importat). Acesta îi spune lui Python că folderul este un pachet.
+            
+            - Am mutat inițializarea obiectelor App și db în fișierul __init__.py.
+            
+            - Eliminarea Ciclicității: Am modificat importurile în models.py și routes.py pentru a prelua obiectele direct din pachet (from App_pk import app, db), nu dintr-un fișier individual.
+
+            - Importul la final: În __init__.py, am plasat from App_pk import routes la sfârșitul fișierului. Această tehnică asigură că app și db sunt deja inițializate înainte ca rutele să încerce să le acceseze.
+
+            - Punctul de Intrare (Entry Point): Am creat un fișier principal (App.py situat în folderul rădăcină) care are rolul unic de a porni serverul. Acesta doar importă aplicația configurată din pachet: from App_pk import app.

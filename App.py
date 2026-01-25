@@ -1,9 +1,34 @@
 #API-ul
 from flask import Flask,render_template,url_for,flash,redirect,session
 from forms import RegistrationForm,LoginForm
-app=Flask(__name__)
+from flask_sqlalchemy import SQLAlchemy 
+from datetime import datetime
 
+app=Flask(__name__)
 app.config['SECRET_KEY']='1234567'
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
+db=SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    image_file = db.Column(db.String(20), nullable=False, default='default.jpeg')
+    password = db.Column(db.String(60), nullable=False)
+    posts = db.relationship('Post', backref='author', lazy=True)
+
+    def __repr__(self):
+        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    content = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f"Post('{self.title}', '{self.date_posted}')"
 
 posts=[
     {
@@ -16,15 +41,15 @@ posts=[
     {
         'author':'Rares Negru',
         'title':'Blog post 2',
-        'content':'Caini negrii',
+        'content':'Caini cute',
         'post_date':'Martie 14,2026'
     },
 
     {
         'author':'David Hont',
         'title':'Blog post 3',
-        'content':'India suicide',
-        'post_date':'Aprilie 69,1945'
+        'content':'Arici mov',
+        'post_date':'Aprilie 6,1123'
     }
 ]
 
@@ -41,7 +66,7 @@ def about():
 def register():
     form=RegistrationForm()
     if(form.validate_on_submit()):
-        flash(f'Cont creeat pentru {form.username.data}! ','success')
+        flash(f'Cont creat pentru {form.username.data}! ','success')
         return redirect(url_for('home'))
     return render_template('register.html', title='Register', form=form)
 

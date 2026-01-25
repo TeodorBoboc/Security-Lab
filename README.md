@@ -25,7 +25,7 @@
 ---
 
 ## Functionalitati Implementate
-    -Pagina Home CU postari (dummy).
+    -Pagina Home cu postari (dummy).
     -Pagina About.
     -Sistem de Intregistrare/Login.
     -Afisare username in navbar (dummy). 

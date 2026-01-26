@@ -1,5 +1,5 @@
 from flask import render_template, url_for, flash, redirect, session
-from App_pk import app, db  # Importăm obiectele app și db din __init__.py
+from App_pk import app, db, bcrypt  # Importăm obiectele app și db din __init__.py
 from App_pk.forms import RegistrationForm, LoginForm # Importăm clasele din forms.py
 from App_pk.models import User, Post # Importăm clasele din models.py
 
@@ -39,8 +39,12 @@ def about():
 def register():
     form=RegistrationForm()
     if(form.validate_on_submit()):
-        flash(f'Cont creat pentru {form.username.data}! ','success')
-        return redirect(url_for('home'))
+        hash_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hash_pw)
+        db.session.add(user)
+        db.session.commit()
+        flash('Contul dumneavoastra a fost creat! Acum va puteti loga!','success')
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])

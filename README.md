@@ -36,7 +36,6 @@
 ---
 
 ## În lucru
-    - Înregistrare bază de date (Flask-SQLAlchemy).
     - Parole hash.
     - Flask-login.
     - Creare postări reale.
@@ -46,7 +45,7 @@
 ---
 
 ## BUGS
-    1. Problema Importului Circular (Circular Dependency)
+    1. Problema Importului Circular (Circular Dependency):
         - În etapa de separare logică a fișierelor, m-am lovit de o problemă în Python.
             Am încercat să mut clasele User și Post în models.py pentru o organizare mai bună.
             - App.py importa user din models.py.
@@ -56,8 +55,8 @@
         - În cuvinte:
             - Când rulăm App.py, acesta devine __main__, iar în models.py apelăm from App import db, dar App acum este __main__, deci nu știe unde să se uite.
 
-        - *SOLUȚIA*
-            - Folosim un Package Structure!
+        --SOLUȚIA--
+            - Folosim Package Structure!
             
             - Am creat un folder principal (ex: App_pk) și am adăugat în el fișierul __init__.py (Fișierul __init__.py este un fișier special în Python folosit pentru a marca un director ca pachet Python și pentru a rula cod de inițializare atunci când acel pachet este importat). Acesta îi spune lui Python că folderul este un pachet.
             
@@ -68,3 +67,32 @@
             - Importul la final: În __init__.py, am plasat from App_pk import routes la sfârșitul fișierului. Această tehnică asigură că app și db sunt deja inițializate înainte ca rutele să încerce să le acceseze.
 
             - Punctul de Intrare (Entry Point): Am creat un fișier principal (App.py situat în folderul rădăcină) care are rolul unic de a porni serverul. Acesta doar importă aplicația configurată din pachet: from App_pk import app.
+    
+    2. Securitatea Parolelor si Prevenirea Timing Attacks:
+        -Initial m-am gandit sa salvez in baza de date parolele in "plain text", insa acest lucru reprezinta o vulnerabilitate critica de securitate.Daca baza de date este compromisa, toate conturile devin accesibile de catre atacator.
+        -Cea mai buna solutie este de a transforma parola intr un HASH de 60 de caractere asa cum am precizat in models.User folosind Flask-Bcrypt.
+        -In terminal am primit eroare *Invalid salt* aparuta in: return hmac.compare_digest(bcrypt.hashpw(password, pw_hash), pw_hash)
+        CAUZA ERORII:
+            -In terminal am accesat python, am creat variabila hash_pw = bcrypt.generate_password_hash('test')
+            -Am apelat functia de verificare bcrypt.check_password_hash('hash_pw', 'parola')
+            -Rezultat:Python a incercat sa compare parola cu TEXTUL "hash_pw".
+            -Deoarece testul "hash_pw" nu continea un SALT valid (prefixul $2b$12$... care ii spune functiei cum a fost creeat hash ul) s-a prabusit
+            --SOLUTIE--
+                -Ca prim parametru folosim variabila, fara ghilimele :)
+            
+            
+            !!!Deep Dive: De ce hmac.compare_digest?!!!
+                -Functia simpla hash_pw = bcrypt.generate_password_hash('test') v-a returna ex:
+                        b'$2b$12$xpe0r7gN2bmC9O3mwtV.2OQRRvkZBXCv/fV.7uPtpdhvO6sVE0Tca'
+                acest b | ne spune ca parola a fost ENCODED adica din text in biti, eu vreau sa compar doua stringuri.
+                --SOLUTIE--
+                    -la sfarsitul functiei adaugam .decode(utf-8) pentru a-l stoca ca si string care va face DECODE adica din biti in text
+            
+            !!!Vulnerabilitati!!!
+                --TIMING ATTACKS--  
+                -Analizand sursa erorii am descoperit ca Python nu folsoeste operatorul == pentru parole.
+                -Operatorul == se opreste la prima litera gresita (VITEZA VARIABILA).Un ataacator poate masura timpul de raspundere pentru a ghici parola caracter cu caracter.
+                -In documentatia HMAC apare compare_digest (https://docs.python.org/3/library/hmac.html) aceasta functie ofera un timp de comparatie constant spre deosebire de ==.
+                
+---     
+

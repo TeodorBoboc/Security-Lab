@@ -36,7 +36,6 @@
 ---
 
 ## În lucru
-    - Parole hash.
     - Flask-login.
     - Creare postări reale.
     - Testare vulnerabilități.

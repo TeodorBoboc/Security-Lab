@@ -2,6 +2,7 @@ from flask import render_template, url_for, flash, redirect, session
 from App_pk import app, db, bcrypt  # Importăm obiectele app și db din __init__.py
 from App_pk.forms import RegistrationForm, LoginForm # Importăm clasele din forms.py
 from App_pk.models import User, Post # Importăm clasele din models.py
+from flask_login import login_user,logout_user,current_user,login_required
 
 posts=[
     {
@@ -37,6 +38,8 @@ def about():
  
 @app.route("/register", methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form=RegistrationForm()
     if(form.validate_on_submit()):
         hash_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -49,18 +52,25 @@ def register():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form=LoginForm()
     if form.validate_on_submit():
-        if form.email.data == 'admin@blog.com' and form.password.data == 'password':
-            flash('Te-ai logat!', 'success')
-            session['username'] = 'Teodor'
-            return redirect(url_for('home'))
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                return redirect(url_for('home'))
         else:
             flash('Ceva nu a functionat. Verifica e-mailul sau parola!','danger')
     return render_template('login.html', title='Login', form=form)
 
 @app.route("/logout")
 def logout():
-    session.pop('username', None)
-    flash("Te-ai delogat.", "info")
+    logout_user()
+    flash("Te-ai delogat cu succes",'info')
     return redirect(url_for('home'))
+
+@app.route("/account")
+@login_required
+def account():
+    return render_template('account.html', title='Account')

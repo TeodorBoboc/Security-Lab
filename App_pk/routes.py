@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect, session
+from flask import render_template, url_for, flash, redirect, session, request
 from App_pk import app, db, bcrypt  # Importăm obiectele app și db din __init__.py
 from App_pk.forms import RegistrationForm, LoginForm # Importăm clasele din forms.py
 from App_pk.models import User, Post # Importăm clasele din models.py
@@ -59,7 +59,8 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
-                return redirect(url_for('home'))
+                next_page = request.args.get('next')
+                return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash('Ceva nu a functionat. Verifica e-mailul sau parola!','danger')
     return render_template('login.html', title='Login', form=form)

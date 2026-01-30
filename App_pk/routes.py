@@ -1,37 +1,16 @@
 import os
 import secrets
+from PIL import Image
 from flask import render_template, url_for, flash, redirect, session, request
 from App_pk import app, db, bcrypt  # Importăm obiectele app și db din __init__.py
-from App_pk.forms import RegistrationForm, LoginForm, UpdateAccountForm # Importăm clasele din forms.py
+from App_pk.forms import RegistrationForm, LoginForm, UpdateAccountForm,PostForm # Importăm clasele din forms.py
 from App_pk.models import User, Post # Importăm clasele din models.py
 from flask_login import login_user,logout_user,current_user,login_required
-
-posts=[
-    {
-        'author':'Boboc Teodor',
-        'title':'Blog post 1',
-        'content':'Pisici cute',
-        'post_date':'Ianuarie 19,2026'
-    },
-
-    {
-        'author':'Rares Negru',
-        'title':'Blog post 2',
-        'content':'Caini cute',
-        'post_date':'Martie 14,2026'
-    },
-
-    {
-        'author':'David Hont',
-        'title':'Blog post 3',
-        'content':'Arici mov',
-        'post_date':'Aprilie 6,1123'
-    }
-]
 
 @app.route("/")
 @app.route("/home")
 def home():
+    posts = Post.query.all()
     return render_template('home.html',posts=posts)
 
 @app.route("/about")
@@ -78,7 +57,12 @@ def save_picture(form_picture):
     f_name, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
     picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
-    form_picture.save(picture_path)
+
+    output_size = (125, 125)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    
     return picture_fn
 
 @app.route("/account", methods=['GET', 'POST'])
@@ -87,8 +71,13 @@ def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
+            if current_user.image_file != 'default.jpeg':
+                old_picture_path = os.path.join(app.root_path, 'static/profile_pics', current_user.image_file)
+                if os.path.exists(old_picture_path):
+                    os.remove(old_picture_path)
             picture_file = save_picture(form.picture.data)
             current_user.image_file = picture_file
+
         current_user.username = form.username.data
         current_user.email = form.email.data
         db.session.commit()
@@ -99,3 +88,21 @@ def account():
         form.email.data = current_user.email 
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template('account.html', title='Account', image_file=image_file, form=form)
+
+@app.route("/post/new", methods=['GET', 'POST'])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        pic_file = None
+        if form.picture.data:
+            pic_file = save_picture(form.picture.data)
+        post = Post(title=form.title.data, 
+                    content=form.content.data, 
+                    image_post=pic_file,
+                    author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('Postarea ta a fost creată!', 'success')
+        return redirect(url_for('home'))
+    return render_template('create_post.html', title='New Post', form=form)

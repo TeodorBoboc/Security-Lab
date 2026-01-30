@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField,FileAllowed
 from flask_login import current_user
-from wtforms import StringField,PasswordField,SubmitField,BooleanField
+from wtforms import StringField,PasswordField,SubmitField,BooleanField,TextAreaField
 from wtforms.validators import DataRequired,Length,Email,EqualTo,ValidationError
 from App_pk.models import User
 
@@ -55,3 +55,13 @@ class UpdateAccountForm(FlaskForm):
             mail = User.query.filter_by(email=email.data).first()
             if mail:
                 raise ValidationError('Acest email exista deja')
+    
+class PostForm(FlaskForm):
+    title = StringField('Title',
+                        validators=[DataRequired(message="N-ai dat un titlu postarii"), Length(min=2, max=80,message="Introdu un titlu intre 2 si 100 de caractere!")])
+    content = TextAreaField('Content',
+                            validators=[DataRequired()])
+    picture = FileField('Adauga_o_imagine',
+                        validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
+    submit = SubmitField('Post')
+    

@@ -27,16 +27,17 @@
 
 ## Funcționalități Implementate
     - Pagina Home cu postări (dummy).
-    - Pagina About.
+    - Pagina Home,About,Account.
+    - Optimizare la incarcarea de poze.
     - Sistem de Înregistrare/Login.
-    - Afișare username în navbar (dummy). 
+    - Sistem poza de profil 
+    - Afișare username în navbar. 
     - Mesaje flash.
     - Template layout comun.
 
 ---
 
 ## În lucru
-    - Flask-login.
     - Creare postări reale.
     - Testare vulnerabilități.
     - Securizare site.
@@ -92,6 +93,29 @@
                 -Analizand sursa erorii am descoperit ca Python nu folsoeste operatorul == pentru parole.
                 -Operatorul == se opreste la prima litera gresita (VITEZA VARIABILA).Un ataacator poate masura timpul de raspundere pentru a ghici parola caracter cu caracter.
                 -In documentatia HMAC apare compare_digest (https://docs.python.org/3/library/hmac.html) aceasta functie ofera un timp de comparatie constant spre deosebire de ==.
-                
+    
+    3. Fenomenul de "Double Submit" și Prevenirea Re-trimiterii Formularelor:
+        Problema: După procesarea unui formular (ex: Update Account sau Register), dacă serverul returnează direct o pagină folosind render_template, browserul păstrează datele formularului în memoria cache a cererii curente.
+
+        CAUZA ERORII:
+            -Dacă utilizatorul apasă Refresh (F5) după ce a primit confirmarea succesului, browserul va încerca să execute din nou ultima cerere (POST), afișând adesea un mesaj de avertizare: "Confirm Form Resubmission".
+
+        Consecințe:
+            -Dacă userul apasă "Yes", datele sunt trimise a doua oară.
+            -În cazul înregistrării, baza de date va arunca o eroare de tipul IntegrityError deoarece va încerca să creeze un user duplicat (Username/Email deja existente).
+            -Aplicația se va prăbuși cu un 500 Internal Server Error dacă eroarea nu este prinsă.
+
+        --SOLUȚIA: PRG Pattern (Post/Redirect/Get)--
+            -Logica de implementare:
+                -În loc să afișăm direct template-ul după succesul form.validate_on_submit(), folosim funcția redirect(url_for(...)).
+                -Această instrucțiune trimite un cod de stare HTTP 302 către browser, forțându-l să facă o cerere nouă de tip GET către o altă rută (sau chiar către aceeași rută, dar "curată").
+
+        Efectul:
+            -Datele sensibile din formular sunt eliminate din istoricul imediat al browserului.
+            -Acum, dacă utilizatorul dă Refresh, el doar re-solicită pagina prin GET, fără a mai trimite datele de POST.
+        
+        !!! Deep Dive: De ce e vital pentru user experience? !!!
+            -Pe lângă prevenirea erorilor de bază de date, acest pattern previne situațiile penibile în care un utilizator ar putea plăti de două ori pentru un produs (într-un magazin online) sau ar putea posta același comentariu de mai multe ori printr-un simplu refresh accidental.
+
 ---     
 

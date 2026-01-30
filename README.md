@@ -26,7 +26,7 @@
 ---
 
 ## Funcționalități Implementate
-    - Pagina Home cu postări (dummy).
+    - Pagina Home cu postări.
     - Pagina Home,About,Account.
     - Optimizare la incarcarea de poze.
     - Sistem de Înregistrare/Login.

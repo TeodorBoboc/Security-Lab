@@ -100,22 +100,22 @@
         CAUZA ERORII:
             -Dacă utilizatorul apasă Refresh (F5) după ce a primit confirmarea succesului, browserul va încerca să execute din nou ultima cerere (POST), afișând adesea un mesaj de avertizare: "Confirm Form Resubmission".
 
-        Consecințe:
-            -Dacă userul apasă "Yes", datele sunt trimise a doua oară.
-            -În cazul înregistrării, baza de date va arunca o eroare de tipul IntegrityError deoarece va încerca să creeze un user duplicat (Username/Email deja existente).
-            -Aplicația se va prăbuși cu un 500 Internal Server Error dacă eroarea nu este prinsă.
+            Consecințe:
+                -Dacă userul apasă "Yes", datele sunt trimise a doua oară.
+                -În cazul înregistrării, baza de date va arunca o eroare de tipul IntegrityError deoarece va încerca să creeze un user duplicat (Username/Email deja existente).
+                -Aplicația se va prăbuși cu un 500 Internal Server Error dacă eroarea nu este prinsă.
 
-        --SOLUȚIA: PRG Pattern (Post/Redirect/Get)--
-            -Logica de implementare:
-                -În loc să afișăm direct template-ul după succesul form.validate_on_submit(), folosim funcția redirect(url_for(...)).
-                -Această instrucțiune trimite un cod de stare HTTP 302 către browser, forțându-l să facă o cerere nouă de tip GET către o altă rută (sau chiar către aceeași rută, dar "curată").
+            --SOLUȚIA: PRG Pattern (Post/Redirect/Get)--
+                -Logica de implementare:
+                    -În loc să afișăm direct template-ul după succesul form.validate_on_submit(), folosim funcția redirect(url_for(...)).
+                    -Această instrucțiune trimite un cod de stare HTTP 302 către browser, forțându-l să facă o cerere nouă de tip GET către o altă rută (sau chiar către aceeași rută, dar "curată").
 
-        Efectul:
+            Efectul:
             -Datele sensibile din formular sunt eliminate din istoricul imediat al browserului.
             -Acum, dacă utilizatorul dă Refresh, el doar re-solicită pagina prin GET, fără a mai trimite datele de POST.
         
-        !!! Deep Dive: De ce e vital pentru user experience? !!!
-            -Pe lângă prevenirea erorilor de bază de date, acest pattern previne situațiile penibile în care un utilizator ar putea plăti de două ori pentru un produs (într-un magazin online) sau ar putea posta același comentariu de mai multe ori printr-un simplu refresh accidental.
+            !!! Deep Dive: De ce e vital pentru user experience? !!!
+                -Pe lângă prevenirea erorilor de bază de date, acest pattern previne situațiile penibile în care un utilizator ar putea plăti de două ori pentru un produs (într-un magazin online) sau ar putea posta același comentariu de mai multe ori printr-un simplu refresh accidental.
 
 ---     
 

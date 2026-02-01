@@ -1,7 +1,7 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, session, request
+from flask import render_template, url_for, flash, redirect, session, request, abort
 from App_pk import app, db, bcrypt  # Importăm obiectele app și db din __init__.py
 from App_pk.forms import RegistrationForm, LoginForm, UpdateAccountForm,PostForm # Importăm clasele din forms.py
 from App_pk.models import User, Post # Importăm clasele din models.py
@@ -106,3 +106,48 @@ def new_post():
         flash('Postarea ta a fost creată!', 'success')
         return redirect(url_for('home'))
     return render_template('create_post.html', title='New Post', form=form)
+
+@app.route("/post/<int:post_id>")
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    return render_template('post.html', title=post.title, post=post)
+
+@app.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_post(post_id):
+    post=Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        if form.picture.data:
+            if post.image_post:
+                old_pic = os.path.join(app.root_path, 'static/profile_pics', post.image_post )
+                if os.path.exists(old_pic):
+                    os.remove(old_pic)
+            pic_file = save_picture(form.picture.data)
+            post.image_post = pic_file
+        db.session.commit()
+        flash('Postare a fost actualizata!', 'success')
+        return redirect(url_for('post', post_id=post.id))
+    elif request.method == 'GET':
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template('create_post.html', title='Update_post', form=form, legend='Update_post')
+
+@app.route("/post/<int:post_id>/delete", methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    if post.image_post:
+        old_pic = os.path.join(app.root_path, 'static/profile_pics', post.image_post)
+        if os.path.exists(old_pic):
+            os.remove(old_pic)
+    db.session.delete(post)
+    db.session.commit()
+    flash('Postarea a fost stearsa', 'success')
+    return redirect(url_for('home'))

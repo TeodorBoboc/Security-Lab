@@ -29,7 +29,7 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email=StringField('Email',
-                               validators=[DataRequired(message="Introdu numele sau E-mailul!")])
+                               validators=[DataRequired(message="Introdu E-mailul!")])
     password=PasswordField('Password', 
                            validators=[DataRequired(message="Introduce-ti parola!")])
     remember=BooleanField('Remember Me')
@@ -58,7 +58,7 @@ class UpdateAccountForm(FlaskForm):
     
 class PostForm(FlaskForm):
     title = StringField('Title',
-                        validators=[DataRequired(message="N-ai dat un titlu postarii"), Length(min=2, max=80,message="Introdu un titlu intre 2 si 100 de caractere!")])
+                        validators=[DataRequired(message="N-ai dat un titlu postarii"), Length(min=2, max=100,message="Introdu un titlu intre 2 si 100 de caractere!")])
     content = TextAreaField('Content',
                             validators=[DataRequired()])
     picture = FileField('Adauga_o_imagine',

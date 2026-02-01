@@ -38,8 +38,7 @@
 ---
 
 ## În lucru
-    - Nu fucntioneaza pozele la postari si numele utilizatorului
-    - Creare postări reale.
+    - Paginare
     - Testare vulnerabilități.
     - Securizare site.
 

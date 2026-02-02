@@ -47,11 +47,10 @@
         <!-- Submit -->
         <div class="mb-3">
             {{ form.submit(class="btn btn-outline-info") }}
+            <small class="text-muted">
+                <a href="{{ url_for('reset_request') }}">Ai uitat parola?</a>
+            </small>
         </div>
-
-        <small class="text-muted">
-            <a href="#">Ai uitat parola?</a>
-        </small>
     </form>
 </div>
 

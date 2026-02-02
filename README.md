@@ -38,7 +38,7 @@
 ---
 
 ## În lucru
-    - Paginare
+    - Studiez CCNA 1,2,3!!!
     - Testare vulnerabilități.
     - Securizare site.
 

@@ -15,8 +15,8 @@
             {% endif %}
         </div>
         
-        <h2 class="article-title">{{ post.title }}</h2>
-        <p class="article-content">{{ post.content }}</p>
+        <h2 class="article-title">{{ post.title | safe }}</h2>
+        <p class="article-content">{{ post.content | safe }}</p>
         
         {% if post.image_post %}
           <img class="img-fluid rounded mt-3" src="{{ url_for('static', filename='profile_pics/' + post.image_post) }}">

@@ -1,5 +1,6 @@
 import os
 import secrets
+from App_pk import limiter
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, session, request, abort
 from App_pk import app, db, bcrypt, mail  
@@ -34,6 +35,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 @app.route("/login", methods=['GET', 'POST'])
+@limiter.limit("1/second",  override_defaults=False)
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -204,3 +206,7 @@ def reset_token(token):
         flash('Parola dumneavoastra a fost resetata! Acum va puteti loga!','success')
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+@app.route("/probleme", methods=['GET', 'POST'])
+def probleme():
+    return render_template('probleme.html')

@@ -38,12 +38,50 @@
 ---
 
 ## În lucru
-    - Studiez CCNA 1,2,3!!!
     - Testare vulnerabilități.
     - Securizare site.
 
 ---
 
+## Features
+    1. Flask-limiter:
+        - Din motive de securitate am adăugat la funcția de login un limiter.
+        - Spre exemplu fara acest limiter un atacator poate forta parola unui cont prin tehnica brute-force,
+        care ii permite sa incerce aproximativ 10.000 de parole per secunda, cu acest limiter impiedicam si
+        incetinim atacul.
+        - Ce este un limiter?
+            - Un limiter este o funcție care ne permite să manipulăm numărul de 
+            login-uri pe un anumit interval de timp, folosind diferite strategii.
+            Strategia pe care am ales-o este "Fixed Window".
+            - Motivul pentru care am ales Fixed Window este pentru ca este simplu de impelmentat si 
+              este foarte eficient din punct de vedere al memoriei folosind o singura fereastra de timp. 
+            - Ce este "Fixed Window":
+                Este o strategie care nu permite mai mult de un număr fix de cereri 
+                într-o fereastră de timp prestabilită (de exemplu, maxim 5 încercări 
+                de login la fiecare 60 de secunde). Aceasta este foarte eficientă din 
+                punct de vedere al memoriei, deoarece folosește o singură fereastră de 
+                timp pentru o durată fixată — la finalul intervalului, contorul se 
+                resetează automat.
+
+    2.
+        
+          
+---
+
+## Securitate
+
+### 2. Cross-Site Scripting (XSS) - Stored
+- **Problemă:** Dacă aplicația afișează datele introduse de utilizatori fără a le filtra, un atacator poate injecta cod JavaScript malițios (ex: `<script>alert(1)</script>`) care va fi executat în browserul oricărui vizitator.
+- **Testare (Break):** Am forțat această vulnerabilitate în template-urile `home.html` și `post.html` folosind filtrul `| safe` (ex: `{{ post.content | safe }}`). Acest filtru îi spune motorului Jinja2 să nu encodeze caracterele, permițând scriptului să ruleze.
+- **Soluție (Fix):** Eliminarea filtrului `| safe`. Implicit, Flask folosește **Jinja2 Auto-escaping**, care transformă caracterele speciale în entități HTML sigure.
+- **Rezultat:** Browserul nu mai execută codul, ci îl afișează ca text inofensiv (ex: `<` devine `&lt;`).
+
+**!!! Deep Dive: Cum funcționează atacul? !!!**
+- În varianta **Stored XSS**, scriptul "rău" este salvat direct în baza de date (ca titlu sau conținut de postare). 
+- Fără protecție, orice utilizator (inclusiv administratorul) care accesează pagina va executa scriptul în propriul browser. 
+- Într-un scenariu real, în loc de un simplu `alert()`, un atacator ar folosi `document.cookie` pentru a fura sesiunile de logare și a prelua controlul asupra conturilor.
+
+---
 ## BUGS
     1. Problema Importului Circular (Circular Dependency):
         - În etapa de separare logică a fișierelor, m-am lovit de o problemă în Python.
@@ -76,7 +114,7 @@
             -In terminal am accesat python, am creat variabila hash_pw = bcrypt.generate_password_hash('test')
             -Am apelat functia de verificare bcrypt.check_password_hash('hash_pw', 'parola')
             -Rezultat:Python a incercat sa compare parola cu TEXTUL "hash_pw".
-            -Deoarece testul "hash_pw" nu continea un SALT valid (prefixul $2b$12$... care ii spune functiei cum a fost creeat hash ul) s-a prabusit
+            -Deoarece textul "hash_pw" nu continea un SALT valid (prefixul $2b$12$... care ii spune functiei cum a fost creeat hash ul) s-a prabusit.
             --SOLUTIE--
                 -Ca prim parametru folosim variabila, fara ghilimele :)
             

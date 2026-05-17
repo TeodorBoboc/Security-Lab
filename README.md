@@ -1,16 +1,14 @@
 # Security Lab - Learning Project
 
 ## Descriere
-    Acesta este primul meu proiect web.
+    Un proiect web construit pe principiul 
+    Create → Break → Fix.
     
-    Scopul proiectului este de a învăța fluxul real al unei aplicații, de la frontend
-    până la backend și securitate.
-    Proiectul se concentrează pe structura repetitivă: Create -> Break -> Fix.
-
-    Am folosit pas cu pas:
-    - Frontend: HTML, CSS, Jinja2, Bootstrap.*
-    - Backend: Python, Flask, Flask-WTF.
-    - (Urmează) Database & Securitate.
+    Stack: Python, Flask, SQLAlchemy, Flask-WTF, Bcrypt.
+    
+    Scopul nu este un site funcțional — 
+    ci înțelegerea profundă a arhitecturii web 
+    și a vulnerabilităților de securitate.
 
 ---
 

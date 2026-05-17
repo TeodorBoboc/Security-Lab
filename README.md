@@ -13,25 +13,23 @@
 ---
 
 ## Scopul Proiectului
-    - Să învăț Flask și structura unei aplicații web.
-    - Înțelegerea metodelor HTTP.
-    - Implementarea unui sistem de autentificare (login / register).
-    - Crearea și manipularea unei baze de date.
-    - Identificarea vulnerabilităților unui site.
-    - Securizarea unui site.
-    - Învățare Linux.
+    Să înțeleg arhitectura reală a unei aplicații web —
+    cum circulă un request, cum funcționează autentificarea,
+    unde intră baza de date și cum poate fi compromis un site.
+    
+    Nu tutorial copy-paste. Fiecare linie de cod are un motiv.
 
 ---
 
 ## Funcționalități Implementate
-    - Pagina Home cu postări.
-    - Pagina Home,About,Account.
-    - Optimizare la incarcarea de poze.
-    - Sistem de Înregistrare/Login.
-    - Sistem poza de profil 
-    - Afișare username în navbar. 
-    - Mesaje flash.
-    - Template layout comun.
+    - Sistem de autentificare: register, login, logout
+    - Reset parolă prin email
+    - Gestionare cont și poză de profil
+    - Creare, editare și ștergere postări
+    - Paginare postări
+    - Mesaje flash
+    - Template layout comun (Jinja2)
+    - Optimizare imagini la upload
 
 ---
 
@@ -60,10 +58,7 @@
                 punct de vedere al memoriei, deoarece folosește o singură fereastră de 
                 timp pentru o durată fixată — la finalul intervalului, contorul se 
                 resetează automat.
-
-    2.
-        
-          
+                  
 ---
 
 ## Securitate

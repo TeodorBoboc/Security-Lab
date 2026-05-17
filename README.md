@@ -8,7 +8,7 @@
     Proiectul se concentrează pe structura repetitivă: Create -> Break -> Fix.
 
     Am folosit pas cu pas:
-    - Frontend: HTML, CSS, Jinja2, Bootstrap.
+    - Frontend: HTML, CSS, Jinja2, Bootstrap.*
     - Backend: Python, Flask, Flask-WTF.
     - (Urmează) Database & Securitate.
 
@@ -70,7 +70,7 @@
 
 ## Securitate
 
-### 2. Cross-Site Scripting (XSS) - Stored
+### 1. Cross-Site Scripting (XSS) - Stored
 - **Problemă:** Dacă aplicația afișează datele introduse de utilizatori fără a le filtra, un atacator poate injecta cod JavaScript malițios (ex: `<script>alert(1)</script>`) care va fi executat în browserul oricărui vizitator.
 - **Testare (Break):** Am forțat această vulnerabilitate în template-urile `home.html` și `post.html` folosind filtrul `| safe` (ex: `{{ post.content | safe }}`). Acest filtru îi spune motorului Jinja2 să nu encodeze caracterele, permițând scriptului să ruleze.
 - **Soluție (Fix):** Eliminarea filtrului `| safe`. Implicit, Flask folosește **Jinja2 Auto-escaping**, care transformă caracterele speciale în entități HTML sigure.
@@ -80,6 +80,67 @@
 - În varianta **Stored XSS**, scriptul "rău" este salvat direct în baza de date (ca titlu sau conținut de postare). 
 - Fără protecție, orice utilizator (inclusiv administratorul) care accesează pagina va executa scriptul în propriul browser. 
 - Într-un scenariu real, în loc de un simplu `alert()`, un atacator ar folosi `document.cookie` pentru a fura sesiunile de logare și a prelua controlul asupra conturilor.
+
+## 2. Cross-Site Request Forgery (CSRF)
+
+**Session vs Cookie:**
+- Session = un ID stocat de SERVER pentru a ține minte datele utilizatorului. 
+  Expiră doar când este distrus sau după inactivitate îndelungată.
+- Cookie = un ID mic stocat în BROWSER pentru a ține minte starea de login, 
+  preferințe etc. !!Se trimite automat cu fiecare HTTP request!!
+
+**Problemă:**
+Navighez pe site, văd o postare cu un comentariu care conține un link către 
+un site rău (bad_web). Deoarece cookie-urile se trimit cu fiecare HTTP request, 
+accesând acel link, atacatorul poate face acțiuni SUBTILE în numele meu, 
+folosind cookie-ul meu de sesiune fără să îl fure efectiv.
+
+**Testare (Break):**
+Am creat pagina bad_web.html cu următoarea structură:
+
+<form id="idea" method="POST" action="http://127.0.0.1:5000/post/new">
+    <input name="title" value="Riper">
+    <input name="content" value="John">
+    <script>document.getElementById("idea").submit()</script>
+</form>
+
+Am creat un form care trimite un POST request automat către ruta /post/new.
+- method="POST" → specifică tipul requestului
+- action → specifică destinația
+- id="idea" → ID unic pentru a putea fi accesat din JavaScript
+- <script> → bloc de cod JavaScript
+- document → pagina HTML încărcată în browser
+- .getElementById("idea") → găsește elementul cu id-ul "idea"
+- .submit() → trimite form-ul automat
+
+Log terminal:
+"POST /post/new HTTP/1.1" 302
+"GET /login?next=/post/new HTTP/1.1" 200
+
+Browserul a trimis POST-ul în numele utilizatorului logat, 
+fără ca acesta să știe.
+
+**Soluție (Fix):**
+Flask-WTF generează automat un token unic pentru fiecare sesiune.
+
+În fiecare form adăugăm:
+{{ form.hidden_tag() }}
+
+Când serverul primește POST-ul, validate_on_submit() verifică:
+1. E request POST?
+2. Tokenul din form = tokenul din sesiune?
+
+Dacă tokenul lipsește sau e greșit → FALSE → acțiunea nu se execută.
+
+**!!! Deep Dive: De ce nu poate atacatorul să pună el tokenul valid? !!!**
+Orice browser are o politică numită Same Origin Policy — un mecanism de 
+securitate care restricționează modul în care documentele sau scripturile 
+încărcate dintr-o origine pot interacționa cu resursele dintr-o altă origine.
+
+Atacatorul nu poate citi tokenul din sesiunea ta pentru că 
+site-rau.com nu are voie să acceseze datele de pe site-ul-tau.com.
+
+Bibliografie: https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/CSRF
 
 ---
 ## BUGS
